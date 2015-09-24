@@ -1,0 +1,18 @@
+1.
+Describe an algorithm that uses a stack to evaluate a list expression composed of the four basic operators and integer values... etc
+
+solution:
+given a string that is a valid lisp expression
+    1. read the string in reverse, pushing each character/element onto the stack
+    2. begin evaluating the expression by popping elements off the stack and follow case-by-case:
+        i) every opening bracket that gets popped come back to this step recursively (keeping track of which step previously on)
+        ii) pop the next object which should be an operator, store this operator in a variable
+            1) if top() == ")" and operator == "+"; value = 0.0
+                return value;
+        iii) pop the next object, a number.
+            1) if top() == ")" and operator == ("-"); value -= number
+                return value;
+            2) if top() == another number; value = number;
+        iv) continue popping numbers and performing the operator's operation on value until a closing bracket is popped. then return value.
+       
+in short: for every opening bracket found, evaluate the expression inside until the respective closing bracket
