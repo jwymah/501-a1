@@ -1,3 +1,4 @@
+package main.java;
 /*
  * Student: Jeremy Mah
  * ID: 10053908

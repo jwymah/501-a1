@@ -1,13 +1,14 @@
+package main.java;
 import java.util.EmptyStackException;
 
-public class A2Q3<T> implements BoundedStack<T>{
+public class ArrayStack<T> implements BoundedStack<T>{
 	private T[] stack;
 	private int size = 0;
 	private int capacity = 0;
 	private int top = -1;
 	
 	@SuppressWarnings("unchecked")
-	public	A2Q3 (int newCapacity){
+	public	ArrayStack (int newCapacity){
 		stack = (T[]) new String[newCapacity];
 		capacity = newCapacity;
 	}

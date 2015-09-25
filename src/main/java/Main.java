@@ -1,3 +1,4 @@
+package main.java;
 import java.io.*;
 /*
  * Student: Jeremy Mah
@@ -12,7 +13,7 @@ import java.io.*;
 /*
  * driver class for assignement 2. takes the command line args only. returns none
  */
-public class A2Q5 {
+public class Main {
 	
 	/**
 	 *  Prints a message describing proper usage with respect to required
@@ -37,7 +38,7 @@ public class A2Q5 {
  * @param args
  */
 	public static void main(String args[]){
-		A2Q5b lispExpression = null;
+		ExpressionEvaluator lispExpression = null;
 		double result = 0.0;
 		if (args.length != 2){
 			usage();
@@ -55,7 +56,7 @@ public class A2Q5 {
 		       while (temp != null)
 		       {
 		    	   try{
-		    	   lispExpression = new A2Q5b();
+		    	   lispExpression = new ExpressionEvaluator();
 		    	   result = lispExpression.startExpression(type, temp);
 		    	   System.out.println(result);
 		    	   }catch(Exception e){

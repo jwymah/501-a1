@@ -1,3 +1,4 @@
+package main.java;
 /**
  * The cpsc331Stack interface represents the Stack ADT as described
  * in the CPSC 331 lectures during the Winter 2007 term.

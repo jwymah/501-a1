@@ -1,3 +1,4 @@
+package main.java;
 import java.util.EmptyStackException;
 /*
  * Student: Jeremy Mah
@@ -8,12 +9,12 @@ import java.util.EmptyStackException;
  * TA: Eduard Pelchat
  * tut: M/W 11am
  */
-public class A2Q4<T> implements BoundedStack<T>{
+public class LinkedListStack<T> implements BoundedStack<T>{
 	private int size;
 	private int capacity;
 	private ListNode head;
 
-	public A2Q4 (int newCapacity){
+	public LinkedListStack (int newCapacity){
 		capacity = newCapacity;
 	}
 	@Override

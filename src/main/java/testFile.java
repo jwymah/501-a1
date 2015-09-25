@@ -1,3 +1,4 @@
+package main.java;
 
 public class testFile{
 	private static StringBuffer buf = new StringBuffer();

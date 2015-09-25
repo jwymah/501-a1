@@ -1,4 +1,10 @@
+package test.java;
 import org.junit.*;
+
+import main.java.ExpressionEvaluator;
+import main.java.FullStackException;
+import main.java.InvalidExpressionException;
+
 import static org.junit.Assert.*;
 /*
  * Student: Jeremy Mah
@@ -17,16 +23,16 @@ import static org.junit.Assert.*;
  * and since every smaller case is considered, any combination of these cases will yield the same result
  * 
  */
-public class A2Q6 {
-	private A2Q5b stackA;
-	private A2Q5b stackL;
+public class TestExpressionEvaluator {
+	private ExpressionEvaluator stackA;
+	private ExpressionEvaluator stackL;
 	private final int ARRAY = 0;
 	private final int LL = 1;
 	
 	@Before
 	public void init() {
-	stackA = new A2Q5b();
-	stackL = new A2Q5b();
+	stackA = new ExpressionEvaluator();
+	stackL = new ExpressionEvaluator();
 	}
 	/**
 	 * begin black box tests for assignment 2 question 5.

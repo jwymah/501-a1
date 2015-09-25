@@ -1,3 +1,4 @@
+package main.java;
 /**
  * Interface for question two.
  * @author Jeremy mah

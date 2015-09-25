@@ -1,5 +1,14 @@
-
-public class CopyOfA2Q5b {
+package main.java;
+/*
+ * Student: Jeremy Mah
+ * ID: 10053908
+ * Class: 331
+ * assignment 2
+ * Instructor: Mike Jacobson
+ * TA: Eduard Pelchat
+ * tut: M/W 11am
+ */
+public class ExpressionEvaluator {
 	private  int capacity = 100;
 	private  StringBuffer buf = new StringBuffer();
 	private  boolean appendState = false;
@@ -11,37 +20,36 @@ public class CopyOfA2Q5b {
 	 * @param 1 or 0 depending on type of stack implementation
 	 * @param lisp expression
 	 */
-	public CopyOfA2Q5b(int type, String expression){
-		
-		try{
-			startExpression(type, expression);
-		}catch(Exception e){
-			System.out.println("Invalid Expression");
-		}
-}
-	
+	/**
+	 * method made solely for the purpose of having a return method that can be used to test
+	 * @param type integer 0 or 1 for the implementation of the stack
+	 * @param expression the lisp expression
+	 * @return value of expression of type double
+	 */
 	public double startExpression(int type, String expression){
 		double value = 0.0;
-		
+			
+		if(expression.length() == 0){
+			throw new InvalidExpressionException("Invalid Expression2");
+		}
 		if	(type == 0){
-			stack = new A2Q3<String>(capacity);
+			stack = new ArrayStack<String>(capacity);
 		}
 		else{
-			stack = new A2Q4<String>(capacity);
+			stack = new LinkedListStack<String>(capacity);
 		}
 		
 		for (int i = expression.length()-1; i >= 0; i--){	//all initial pushing is done inside parseInput
 			parseInput(expression.charAt(i));
-			//System.out.println("parsed character: " + expression.charAt(i));
+			if(Mode.debugStack==true)
+				System.out.println("parsed character: " + expression.charAt(i));
 		}
-		
 		if	(stack.pop().contentEquals("(")){
 			depth = 0;
 			value = evaluate();
-			System.out.println(value);
 		}
 		else
-				throw new InvalidExpressionException("Invalid Expression");
+				throw new InvalidExpressionException("Invalid Expression3");
 		return value;
 	}
 	
@@ -101,7 +109,7 @@ public class CopyOfA2Q5b {
 			appendState = false;
 			break;
 		default:
-			throw new InvalidExpressionException("Invalid Expression");
+			throw new InvalidExpressionException("Invalid Expression4");
 		}
 		return;
 	}
@@ -112,24 +120,28 @@ public class CopyOfA2Q5b {
  * until the corresponding closing bracket given a valid equation
  * Will call itself again when encountering another opening bracket before a closing bracket.
  * @return returns a boolean value whether the expression is a valid Lisp expression.
- * @throws InvalidExpressionException if some expressions is not entirely bound by a single pair of brackets. ie. '(+ 1 2)5'
+ * @throws InvalidExpressionException if some expression is not entirely bound by a single pair of brackets. ie. '(+ 1 2)5'.
+ * 		will always throw an exception if a close bracket is not on stack when returning to this method
  */
 	public double evaluate(){
 		depth += 1;
+		String str=null;
 		double value = 0.0;
 		while (stack.size() > 1 && stack.top().contentEquals(")") == false){
-			String str = stack.pop();
+			str = stack.pop();
 			if	(str.contentEquals("(")){
 				value = evaluate();
 			}
 			else if	(stack.size() > 0 && str.contentEquals(")") == false)
 				value = doOperator(str);
 		}
+		if (stack.isEmpty() == true)
+			throw new InvalidExpressionException("Invalid Expression4.5");
 		stack.pop();
 		if(Mode.debugEval)
 			System.out.println("stack size= " +stack.size());
 		if(depth == 1 && stack.isEmpty()==false)
-			throw new InvalidExpressionException("Invalid Expression");
+			throw new InvalidExpressionException("Invalid Expression5");
 		depth -= 1;
 		return value;
 	}
@@ -161,7 +173,9 @@ public class CopyOfA2Q5b {
 		else if (str.contentEquals(")")){
 			return 0.0;
 		}
-		
+		else{
+			throw new InvalidExpressionException("Invalid Expression5.5");
+		}
 		return value;
 	}
 	
@@ -184,7 +198,7 @@ public class CopyOfA2Q5b {
 				if	(terms==1 && operator=='*')
 					value = 1.0;
 				else if(terms==1 && (operator=='/' || operator=='-')){
-					throw new InvalidExpressionException("Invalid Expression");
+					throw new InvalidExpressionException("Invalid Expression6");
 				}
 				if (Mode.debugEval)
 					System.out.println("value at this point = "+value);
@@ -235,5 +249,15 @@ public class CopyOfA2Q5b {
 			}
 		}
 		return 0.0;
+	}
+	
+	/*
+	 * for whatever reason sometimes it is desired to empty the stack and start over
+	 * this method does just that
+	 */
+	public void cleanStack(){
+		while (stack.size() > 0){
+			stack.pop();
+		}
 	}
 }
