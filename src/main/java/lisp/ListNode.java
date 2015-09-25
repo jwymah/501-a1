@@ -1,4 +1,4 @@
-package main.java;
+package lisp;
 
 public class ListNode {
 	private String data;

@@ -1,9 +1,10 @@
-package test.java;
+package lisp; 
+
 import org.junit.*;
 
-import main.java.ExpressionEvaluator;
-import main.java.FullStackException;
-import main.java.InvalidExpressionException;
+import lisp.ExpressionEvaluator;
+import lisp.FullStackException;
+import lisp.InvalidExpressionException;
 
 import static org.junit.Assert.*;
 /*

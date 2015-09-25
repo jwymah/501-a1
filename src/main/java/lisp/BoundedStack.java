@@ -1,4 +1,4 @@
-package main.java;
+package lisp;
 
 /**
  * Interface for question two.
