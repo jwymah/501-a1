@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
  * and since every smaller case is considered, any combination of these cases will yield the same result
  * 
  */
-public class TestExpressionEvaluator {
+public class FunctionalTestExpressionEvaluator {
 	private ExpressionEvaluator stackA;
 	private ExpressionEvaluator stackL;
 	private final int ARRAY = 0;
