@@ -15,15 +15,7 @@ public class ExpressionEvaluator {
 	private boolean appendState = false;
 	private BoundedStack<String> stack;
 	private int depth = 0;
-
-	/**
-	 * handles any exceptions thrown by called methods
-	 * 
-	 * @param 1
-	 *            or 0 depending on type of stack implementation
-	 * @param lisp
-	 *            expression
-	 */
+	
 	/**
 	 * method made solely for the purpose of having a return method that can be
 	 * used to test
@@ -37,6 +29,13 @@ public class ExpressionEvaluator {
 	public double startExpression(int type, String expression) {
 		double value = 0.0;
 
+		pushExpressionIntoStack(type, expression);
+		value = evaluateExpressionOnStack(value);
+		return value;
+	}
+
+	private void pushExpressionIntoStack(int type, String expression)
+	{
 		if (expression.length() == 0) {
 			throw new InvalidExpressionException("Empty expression.");
 		}
@@ -46,17 +45,18 @@ public class ExpressionEvaluator {
 			stack = new LinkedListStack<String>(capacity);
 		}
 
-		for (int i = expression.length() - 1; i >= 0; i--) { // all initial
-																// pushing is
-																// done inside
-																// parseInput
-			parseInput(expression.charAt(i));
+		for (int i = expression.length() - 1; i >= 0; i--) {
+			parseChar(expression.charAt(i));
 			if (Mode.debugStack == true)
 				System.out.println("parsed character: " + expression.charAt(i));
 		}
+	}
+
+	private double evaluateExpressionOnStack(double value)
+	{
 		if (stack.pop().contentEquals("(")) {
 			depth = 0;
-			value = evaluate();
+			value = evaluateSubExpression();
 		} else
 			throw new InvalidExpressionException("Does not start with '('.");
 		return value;
@@ -73,7 +73,7 @@ public class ExpressionEvaluator {
 	 * @throws InvalidExpressionException
 	 *             if unexpected characters found (ie alphabet)
 	 */
-	public void parseInput(char c) {
+	public void parseChar(char c) {
 		if (Mode.debugStack == true)
 			System.out.println("parsing: " + c);
 		switch (c) {
@@ -141,14 +141,14 @@ public class ExpressionEvaluator {
 	 *             brackets. ie. '(+ 1 2)5'. will always throw an exception if a
 	 *             close bracket is not on stack when returning to this method
 	 */
-	public double evaluate() {
+	public double evaluateSubExpression() {
 		depth += 1;
 		String str = null;
 		double value = 0.0;
 		while (stack.size() > 1 && stack.top().contentEquals(")") == false) {
 			str = stack.pop();
 			if (str.contentEquals("(")) {
-				value = evaluate();
+				value = evaluateSubExpression();
 			} else if (stack.size() > 0 && str.contentEquals(")") == false)
 				value = doOperator(str);
 		}
@@ -176,7 +176,7 @@ public class ExpressionEvaluator {
 		if (Mode.debugEval)
 			System.out.println("String passed to doOperator is: " + str);
 		if (str.contentEquals("("))
-			evaluate();
+			evaluateSubExpression();
 
 		else if (str.contentEquals("+")) {
 			value = doOperands('+');
@@ -221,54 +221,58 @@ public class ExpressionEvaluator {
 					throw new InvalidExpressionException(
 							"Expression starts with an unsupported starting operator '" + operator + "'.");
 				}
-				if (Mode.debugEval)
-					System.out.println("value at this point = " + value);
 				return value;
 			}
 
 			String str = stack.pop();
 
 			if (str.contentEquals("("))
-				str = Double.toString(evaluate());
+				str = Double.toString(evaluateSubExpression());
 			else if (str.contentEquals("+") || str.contentEquals("*") || str.contentEquals("-")
 					|| str.contentEquals("/")) {
 				throw new InvalidExpressionException("Expression contains operators before parenthesis.");
 			}
 
-			switch (operator) {
-			case '+':
-				if (terms == 1)
-					value = 0.0;
-				value += Double.parseDouble(str);
-				break;
-			case '*':
-				if (terms == 1)
-					value = 1.0;
-				value *= Double.parseDouble(str);
-				break;
-			case '-':
-				if (terms == 1) {
-					if (stack.top().contentEquals(")"))
-						value = -Double.parseDouble(str);
-					else
-						value = Double.parseDouble(str);
-				} else {
-					value -= Double.parseDouble(str);
-				}
-				break;
-			case '/':
-				if (terms == 1) {
-					if (stack.top().contentEquals(")"))
-						value = 1 / Double.parseDouble(str);
-					else
-						value = Double.parseDouble(str);
-				} else {
-					value /= Double.parseDouble(str);
-				}
-				break;
-			}
+			value = doOperator(operator, terms, value, str);
 		}
 		return 0.0;
+	}
+
+	private double doOperator(char operator, int terms, double value, String str)
+	{
+		switch (operator) {
+		case '+':
+			if (terms == 1)
+				value = 0.0;
+			value += Double.parseDouble(str);
+			break;
+		case '*':
+			if (terms == 1)
+				value = 1.0;
+			value *= Double.parseDouble(str);
+			break;
+		case '-':
+			if (terms == 1) {
+				if (stack.top().contentEquals(")"))
+					value = -Double.parseDouble(str);
+				else
+					value = Double.parseDouble(str);
+			} else {
+				value -= Double.parseDouble(str);
+			}
+			break;
+		case '/':
+			if (terms == 1) {
+				if (stack.top().contentEquals(")"))
+					value = 1 / Double.parseDouble(str);
+				else
+					value = Double.parseDouble(str);
+			} else {
+				value /= Double.parseDouble(str);
+			}
+			break;
+		}
+		return value;
 	}
 
 	/*
