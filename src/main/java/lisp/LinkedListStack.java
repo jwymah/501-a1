@@ -9,21 +9,13 @@ import java.util.EmptyStackException;
  * TA: Eduard Pelchat
  * tut: M/W 11am
  */
-public class LinkedListStack<T> implements BoundedStack<T>{
-	private int size;
-	private int capacity;
+public class LinkedListStack<T> extends BoundedStack<T>{
 	private ListNode head;
 
 	public LinkedListStack (int newCapacity){
-		capacity = newCapacity;
+		super(newCapacity);
 	}
-	@Override
-	public boolean isEmpty() {
-		if (size == 0)
-			return true;
-		return false;
-	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public T top() throws EmptyStackException{
@@ -50,24 +42,7 @@ public class LinkedListStack<T> implements BoundedStack<T>{
 			System.out.println("popped: "+temp);
 		return (T) temp;
 	}
-
-	@Override
-	public int size() {
-		return size;
-	}
-
-	@Override
-	public int capacity() {
-		return capacity;
-	}
-
-	@Override
-	public boolean isFull() {
-		if (size == capacity)
-			return true;
-		return false;
-	}
-
+	
 	@Override
 	public void push(T x) throws FullStackException{
 		if (isFull())

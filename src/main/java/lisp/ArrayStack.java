@@ -2,22 +2,14 @@ package lisp;
 
 import java.util.EmptyStackException;
 
-public class ArrayStack<T> implements BoundedStack<T>{
+public class ArrayStack<T> extends BoundedStack<T>{
 	private T[] stack;
-	private int size = 0;
-	private int capacity = 0;
 	private int top = -1;
 	
 	@SuppressWarnings("unchecked")
 	public	ArrayStack (int newCapacity){
+		super(newCapacity);
 		stack = (T[]) new String[newCapacity];
-		capacity = newCapacity;
-	}
-	@Override
-	public boolean isEmpty() {
-		if (size == 0)
-			return true;
-		return false;
 	}
 
 	@Override
@@ -41,24 +33,6 @@ public class ArrayStack<T> implements BoundedStack<T>{
 			System.out.println("popped " + temp);
 		return temp;
 	}
-
-	@Override
-	public int size() {
-		return size;
-	}
-
-	@Override
-	public int capacity() {
-		return capacity;
-	}
-
-	@Override
-	public boolean isFull() {
-		if (size == capacity)
-			return true;
-		return false;
-	}
-
 	@Override
 	public void push(T x) throws FullStackException{
 		if (isFull())

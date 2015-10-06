@@ -7,25 +7,50 @@ package lisp;
  * @param <T>
  *
  */
-public interface BoundedStack<T>
+public abstract class BoundedStack<T>
 {
+	protected int size;
+	private int capacity;
+
+	public BoundedStack(int capacity)
+	{
+		size = 0;
+		this.capacity = capacity;
+	}
+	
 	/**
 	 * @returns the size of the stack. ie. set elements in the array.
 	 */
-	public int size();
-
+	public int size() {
+		return size;
+	}
 	/**
 	 * @returns the maximum size of the stack. ie. size of the array.
 	 */
-	public int capacity();
-
+	public int capacity() {
+		return capacity;
+	}
 	/**
 	 * checks to see whether the size==capacity.
 	 * 
 	 * @returns true if size==capacity, false otherwise.
 	 */
-	public boolean isFull();
+	public boolean isFull() {
+		if (size == capacity)
+			return true;
+		return false;
+	}
 
+	/**
+	 * Tests whether the stack is empty.
+	 *
+	 * @return true if the stack is empty, false otherwise
+	 */
+	public boolean isEmpty() {
+		if (size == 0)
+			return true;
+		return false;
+	}
 	/**
 	 * Pushes the object x onto the top of the stack.
 	 *
@@ -34,14 +59,7 @@ public interface BoundedStack<T>
 	 * @throws FullStackException
 	 *             if the stack is full.
 	 */
-	public void push(T x);
-
-	/**
-	 * Tests whether the stack is empty.
-	 *
-	 * @return true if the stack is empty, false otherwise
-	 */
-	public boolean isEmpty();
+	public abstract void push(T x);
 
 	/**
 	 * Returns the object at the top of the stack.
@@ -50,7 +68,7 @@ public interface BoundedStack<T>
 	 * @throws EmptyStackException
 	 *             if the stack is empty
 	 */
-	public T top();
+	public abstract T top();
 
 	/**
 	 * Removes and returns the object at the top of the stack.
@@ -59,5 +77,5 @@ public interface BoundedStack<T>
 	 * @throws EmptyStackException
 	 *             if the stack is empty
 	 */
-	public T pop();
+	public abstract T pop();
 }

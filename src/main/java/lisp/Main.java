@@ -23,6 +23,7 @@ public class Main
 	private static void usage()
 	{
 		System.out.println("invalid inputs. Usage: A2Q5 <type> <filename>");
+		System.out.println("where <type> is 0 or 1 and <filename> contains text inputs");
 		System.exit(1);
 	}
 
