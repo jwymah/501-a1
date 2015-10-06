@@ -10,7 +10,7 @@ package lisp;
  * tut: M/W 11am
  */
 public class ExpressionEvaluator {
-	private int capacity = 100;
+	private final int CAPACITY = 100;
 	private BoundedStack<String> stack;
 	private int depth = 0;
 	
@@ -25,30 +25,30 @@ public class ExpressionEvaluator {
 	 * @return value of expression of type double
 	 */
 	public double startExpression(int type, String expression) {
-		double value = 0.0;
 
 		if (expression.length() == 0) {
 			throw new InvalidExpressionException("Empty expression.");
 		}
 		if (type == 0) {
-			stack = new ArrayStack<String>(capacity);
+			stack = new ArrayStack<String>(CAPACITY);
 		} else {
-			stack = new LinkedListStack<String>(capacity);
+			stack = new LinkedListStack<String>(CAPACITY);
 		}
 		StackPopulator stackPopulator = new StackPopulator(stack);
 		stackPopulator.pushExpressionIntoStack(expression);
-		value = evaluateExpressionOnStack(value);
-		return value;
+		return evaluateExpressionOnStack();
 	}
 
-	private double evaluateExpressionOnStack(double value)
+	private double evaluateExpressionOnStack()
 	{
 		if (stack.pop().contentEquals("(")) {
 			depth = 0;
-			value = evaluateSubExpression();
-		} else
+			return evaluateSubExpression();
+		}
+		else
+		{
 			throw new InvalidExpressionException("Does not start with '('.");
-		return value;
+		}
 	}
 
 	/**
@@ -135,7 +135,7 @@ public class ExpressionEvaluator {
 	public double doOperands(char operator) {
 		int terms = 0;
 		double value = 0.0;
-		while (stack.size() > 0) {
+		while (!stack.isEmpty()) {
 			terms++;
 
 			if (stack.top().contentEquals(")")) {
@@ -148,16 +148,16 @@ public class ExpressionEvaluator {
 				return value;
 			}
 
-			String str = stack.pop();
+			String nextChar = stack.pop();
 
-			if (str.contentEquals("("))
-				str = Double.toString(evaluateSubExpression());
-			else if (str.contentEquals("+") || str.contentEquals("*") || str.contentEquals("-")
-					|| str.contentEquals("/")) {
+			if (nextChar.contentEquals("("))
+				nextChar = Double.toString(evaluateSubExpression());
+			else if (nextChar.contentEquals("+") || nextChar.contentEquals("*") || nextChar.contentEquals("-")
+					|| nextChar.contentEquals("/")) {
 				throw new InvalidExpressionException("Expression contains operators before parenthesis.");
 			}
 
-			value = doOperator(operator, terms, value, str);
+			value = doOperator(operator, terms, value, nextChar);
 		}
 		return 0.0;
 	}
