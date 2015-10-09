@@ -65,7 +65,7 @@ public class ExpressionEvaluator {
 	 *             brackets. ie. '(+ 1 2)5'. will always throw an exception if a
 	 *             close bracket is not on stack when returning to this method
 	 */
-	public double evaluateSubExpression() {
+	private double evaluateSubExpression() {
 		depth += 1;
 		String str = null;
 		double value = 0.0;
@@ -95,7 +95,7 @@ public class ExpressionEvaluator {
 	 * @return the value calculated from the operand until closing bracket is on
 	 *         top of stack
 	 **/
-	public double doOperator(String str) {
+	private double doOperator(String str) {
 		double value = 0.0;
 		if (Mode.debugEval)
 			System.out.println("String passed to doOperator is: " + str);
@@ -132,7 +132,7 @@ public class ExpressionEvaluator {
 	 *             stack or if after being called another operator is on top of
 	 *             the stack
 	 */
-	public double doOperands(char operator) {
+	private double doOperands(char operator) {
 		int terms = 0;
 		double value = 0.0;
 		while (!stack.isEmpty()) {

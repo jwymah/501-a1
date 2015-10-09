@@ -67,7 +67,7 @@ public class Main
 				}
 				catch (Exception e)
 				{
-					System.out.println("Invalid Expression");
+					System.out.println(e.getMessage());
 				}
 				lispExpression.cleanStack();
 				expression = br.readLine();
