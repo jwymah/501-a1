@@ -1,4 +1,4 @@
-package lisp; 
+package lisp;
 
 import org.junit.*;
 
@@ -7,6 +7,8 @@ import lisp.FullStackException;
 import lisp.InvalidExpressionException;
 
 import static org.junit.Assert.*;
+
+import java.util.EmptyStackException;
 /*
  * Student: Jeremy Mah
  * ID: 10053908
@@ -17,330 +19,281 @@ import static org.junit.Assert.*;
  * tut: M/W 11am
  */
 
-
 /*junit tests for assignment 2
  * 
  * these tests are quite complete because the algorithm used to evaluate the expressions is recursive,
  * and since every smaller case is considered, any combination of these cases will yield the same result
  * 
  */
-public class FunctionalTestExpressionEvaluator {
-	private ExpressionEvaluator stackA;
-	private ExpressionEvaluator stackL;
+public class FunctionalTestExpressionEvaluator
+{
+	private ExpressionEvaluator expEval;
+	BoundedStack<String> stack;
 	private final int ARRAY = 0;
 	private final int LL = 1;
-	
+	private final int CAPACITY = 100;
+
 	@Before
-	public void init() {
-	stackA = new ExpressionEvaluator();
-	stackL = new ExpressionEvaluator();
+	public void init()
+	{
+		expEval = new ExpressionEvaluator();
+		stack = getStack(ARRAY);
 	}
 	/**
-	 * begin black box tests for assignment 2 question 5.
-	 * note: all methods to be tested are in A2Q5b, as A2Q5 is just the driver that takes command line args
+	 * begin black box tests for assignment 2 question 5. note: all methods to
+	 * be tested are in A2Q5b, as A2Q5 is just the driver that takes command
+	 * line args
 	 */
-	
-	
+
 	/**
-	 * test case 1: tests empty string as the expression
-	 * expected: InvalidExpressionException
-	 * purpose: to test is empty expressions are real expessions
+	 * test case 1: tests empty string as the expression expected:
+	 * EmptyStackException purpose: to test is empty expressions are real
+	 * expessions
 	 */
-	
- @Test (expected = InvalidExpressionException.class)
- public void testNullA(){
-    String expression = "";
-	System.out.println("\nTesting evalute(String) with: type=array, string= " + "'"+expression+"'");
-	stackA.startExpression(ARRAY, expression);
- }
- @Test (expected = InvalidExpressionException.class)
- public void testNullL(){
-     String expression = "";
-	System.out.println("\nTesting evalute(String) with: type=linkedList, string= " + "'"+expression+"'");
-	stackL.startExpression(LL, expression);
- }
- 
- /*
-  * test case 2: tests expression with only brackets
-  * Expected: 0.0
-  * purpose: the next closest thing to nothing is nothing wrapped up like a gift
-  * 
-  * note: could not find whether this was a valid expression, so i assumed that it IS and evaluates to zero.
-  * it would be an easy fix to change it to an invalid expression
-  */
- @Test
- public void emptyExpressionA(){
-	String expression = "()";
-	System.out.println("\nTesting evalute(String) with: type=array, string= " + "'"+expression+"'");
-	assertEquals(0.0, stackA.startExpression(ARRAY, expression), 1e-16);
- }
- @Test
- public void emptyExpressionL(){
-     String expression = "()";
-	System.out.println("\nTesting evalute(String) with: type=linkedList, string= " + "'"+expression+"'");
-	assertEquals(0.0, stackL.startExpression(LL, expression), 1e-16);
- }
- 
- 
- /*
-  * test case 3: minimal operands, + and *
-  * expected: 0.0 for + and 1.0 for *
-  */
- @Test
- public void minimalExpressionPlusA(){
-	String expression = "(+)";
-	System.out.println("\nTesting evalute(String) with: type=array, string= " + "'"+expression+"'");
-	assertEquals(0.0, stackA.startExpression(LL, expression), 1e-16);
- }
- @Test
- public void minimalExpressionPlusL(){
-     String expression = "(+)";
-	System.out.println("\nTesting evalute(String) with: type=linkedList, string= " + "'"+expression+"'");
-	assertEquals(0.0, stackL.startExpression(LL, expression), 1e-16);
-}
 
- @Test
- public void minimalExpressionMulA(){
-	String expression = "(*)";
-	System.out.println("\nTesting evalute(String) with: type=array, string= " + "'"+expression+"'");
-	assertEquals(1.0, stackA.startExpression(LL, expression), 1e-16);
- }
- @Test
- public void minimalExpressionMulL(){
-     String expression = "(*)";
-	System.out.println("\nTesting evalute(String) with: type=linkedList, string= " + "'"+expression+"'");
-	assertEquals(1.0, stackL.startExpression(LL, expression), 1e-16);
-}
- 
- 
- /*
-  * test case 4: illegal size for operators - and /
-  * expected: InvalidExpressionException
-  * purpose: these operators require at least one operand. This tests that.
-  * 
-  */
- @Test (expected = InvalidExpressionException.class)
- public void illegalExpressionSubA(){
-	String expression = "(-)";
-	System.out.println("\nTesting evalute(String) with: type=array, string= " + "'"+expression+"'");
-	stackA.startExpression(ARRAY, expression);
- }
- @Test (expected = InvalidExpressionException.class)
- public void illegalExpressionSubL(){
-     String expression = "(-)";
-	System.out.println("\nTesting evalute(String) with: type=linkedList, string= " + "'"+expression+"'");
-	stackL.startExpression(LL, expression);
-}
+	@Test(expected = EmptyStackException.class)
+	public void testNullA()
+	{
+		String expression = "";
+		System.out.println("\nTesting evalute(String) with: type=array, string= " + "'" + expression + "'");
 
- @Test (expected = InvalidExpressionException.class)
- public void illegalExpressionDivA(){
-	String expression = "(/)";
-	System.out.println("\nTesting evalute(String) with: type=array, string= " + "'"+expression+"'");
-	stackA.startExpression(ARRAY, expression);
- }
- @Test (expected = InvalidExpressionException.class)
- public void illegalExpressionDivL(){
-     String expression = "(/)";
-	System.out.println("\nTesting evalute(String) with: type=linkedList, string= " + "'"+expression+"'");
-	stackL.startExpression(LL, expression);
-}
- 
- 
- /*
-  * test case 5: minimal operands for - and /
-  * expected: -5 and 0.2
-  * purpose: test the lower bound of what is required for these operators
-  * 
-  */
- @Test
- public void minimalExpressionSubA(){
-	String expression = "(- 5)";
-	System.out.println("\nTesting evalute(String) with: type=array, string= " + "'"+expression+"'");
-	assertEquals(-5.0, stackA.startExpression(ARRAY, expression), 1e-16);
- }
- @Test
- public void minimalExpressionSubL(){
-     String expression = "(- 5)";
-	System.out.println("\nTesting evalute(String) with: type=linkedList, string= " + "'"+expression+"'");
-	assertEquals(-5.0, stackL.startExpression(LL, expression), 1e-16);
-}
+		BoundedStack<String> stack = getStack(ARRAY);
+		populateStack(stack, expression);
 
- @Test
- public void minimalExpressionDivA(){
-	String expression = "(/ 5)";
-	System.out.println("\nTesting evalute(String) with: type=array, string= " + "'"+expression+"'");
-	assertEquals(0.2, stackA.startExpression(ARRAY, expression), 1e-16);
- }
- @Test
- public void minimalExpressionDivL(){
-     String expression = "(/ 5)";
-	System.out.println("\nTesting evalute(String) with: type=linkedList, string= " + "'"+expression+"'");
-	assertEquals(0.2, stackL.startExpression(LL, expression), 1e-16);
-}
- 
- /*
-  * test case 6: typical cases with nested expressions
-  * Expected: 3.1415926534674368 and 16.5 respectively
-  * purpose: test codes ability to evaluate robust expressions with many combinations
-  * 
-  */
-@Test
- public void typicalA1(){
-	 String expression ="(+ 3 (/ (+ 7 (/ (+ 9 6 (/ (+ 1 (/ (+ (* 4 (+ 1 (* 8 9))) (/ (+ 1 1)))))))))))";
-	System.out.println("\nTesting evalute(String) with: type=array, string= " + "'"+expression+"'");
-	assertEquals(3.1415926534674368, stackA.startExpression(ARRAY, expression), 1e-16);
- }
-@Test
-public void typicalL1(){
-	 String expression ="(+ 3 (/ (+ 7 (/ (+ 9 6 (/ (+ 1 (/ (+ (* 4 (+ 1 (* 8 9))) (/ (+ 1 1)))))))))))";
-	System.out.println("\nTesting evalute(String) with: type=linkedList, string= " + "'"+expression+"'");
-	assertEquals(3.1415926534674368, stackL.startExpression(LL, expression), 1e-16);
-}
-@Test
-public void typicalA2(){
-	 String expression ="(+ (- 6) (* 2 3 4) (/ (+ 3) (*) (- 2 3 1 )))";
-	System.out.println("\nTesting evalute(String) with: type=array, string= " + "'"+expression+"'");
-	assertEquals(16.5, stackA.startExpression(ARRAY, expression), 1e-16);
-}
-@Test
-public void typicalL2(){
-	 String expression ="(+ (- 6) (* 2 3 4) (/ (+ 3) (*) (- 2 3 1 )))";
-	System.out.println("\nTesting evalute(String) with: type=LL, string= " + "'"+expression+"'");
-	assertEquals(16.5, stackL.startExpression(LL, expression), 1e-16);
-}
+		expEval.startExpression(stack);
+	}
 
-/*
- * test case 7: invalid consecutive operands
- * Expected: InvalidExpressionException
- * purpose: ensure that an operator doesn't try to operate on another operator
- */
-@Test (expected = InvalidExpressionException.class)
-public void invalidOperandsA(){
-	String expression = "(+ - 3345)";
-	System.out.println("\nTesting evaluate() with: type=array, string= " + "'"+expression+"'");
-	stackA.startExpression(ARRAY, expression);
-}
-@Test (expected = InvalidExpressionException.class)
-public void invalidOperandsL(){
-	String expression = "(+ - 3345)";
-	System.out.println("\nTesting evaluate() with: type=linkedList, string= " + "'"+expression+"'");
-	stackL.startExpression(LL, expression);
-}
+	/*
+	 * test case 2: tests expression with only brackets Expected: 0.0 purpose:
+	 * the next closest thing to nothing is nothing wrapped up like a gift
+	 * 
+	 * note: could not find whether this was a valid expression, so i assumed
+	 * that it IS and evaluates to zero. it would be an easy fix to change it to
+	 * an invalid expression
+	 */
+	@Test
+	public void emptyExpressionA()
+	{
+		String expression = "()";
+		System.out.println("\nTesting evalute(String) with: type=array, string= " + "'" + expression + "'");
+		populateStack(stack, expression);
+		assertEquals(0.0, expEval.startExpression(stack), 1e-16);
+	}
 
-/*
- * test case 8: arbitrary and negative integers
- * Expected: -10000.0 and -88888 respectively
- * purpose: this functionality was added in. so best make sure it works
- */
-@Test
-public void arbitraryIntsA1(){
-	String expression = "(+ -5666 -4334)";
-	System.out.println("\nTesting evaluate() with: type=array, string= " + "'"+expression+"'");
-	assertEquals(-10000.0, stackA.startExpression(ARRAY,expression), 1e-16);
-}
-@Test
-public void arbitraryIntsL1(){
-	String expression = "(+ -5666 -4334)";
-	System.out.println("\nTesting evaluate() with: type=linkedList, string= " + "'"+expression+"'");
-	assertEquals(-10000.0, stackL.startExpression(LL,expression), 1e-16);
-}
-@Test
-public void arbitraryIntsA2(){
-	String expression = "(- -99999 -11111)";
-	System.out.println("\nTesting evaluate() with: type=array, string= " + "'"+expression+"'");
-	assertEquals(-88888.0, stackA.startExpression(ARRAY,expression), 1e-16);
-}
-@Test
-public void arbitraryIntsL2(){
-	String expression = "(- -99999 -11111)";
-	System.out.println("\nTesting evaluate() with: type=linkedList, string= " + "'"+expression+"'");
-	assertEquals(-88888.0, stackL.startExpression(LL,expression), 1e-16);
-}
+	/*
+	 * test case 3: minimal operands, + and * expected: 0.0 for + and 1.0 for *
+	 */
+	@Test
+	public void minimalExpressionPlusA()
+	{
+		String expression = "(+)";
+		System.out.println("\nTesting evalute(String) with: type=array, string= " + "'" + expression + "'");
+		populateStack(stack, expression);
+		assertEquals(0.0, expEval.startExpression(stack), 1e-16);
+	}
 
-/*
- * test case 9: if operands come after numbers
- * expected: InvalidExpressionException
- * purpose: see what would happen if an operator came after a number. similar to consecutive operands
- * in that it doesn't want to see operators try to operate on other operators
- */
-@Test (expected = InvalidExpressionException.class)
-public void illegalOrderA(){
-	String expression = "(+ -5666 -4334+)";
-	System.out.println("\nTesting evaluate() with: type=array, string= " + "'"+expression+"'");
-	stackA.startExpression(ARRAY, expression);
-}
-@Test (expected = InvalidExpressionException.class)
-public void illegalOrderL(){
-	String expression = "(+ -5666 -4334+)";
-	System.out.println("\nTesting evalute(LL) with: type=linkedList, string= " + "'"+expression+"'");
-	stackL.startExpression(LL, expression);
-}
+	@Test
+	public void minimalExpressionMulA()
+	{
+		String expression = "(*)";
+		System.out.println("\nTesting evalute(String) with: type=array, string= " + "'" + expression + "'");
+		populateStack(stack, expression);
+		assertEquals(1.0, expEval.startExpression(stack), 1e-16);
+	}
 
-/*
- * test case 10: mismatched brackets
- * expected: InvalidExpressionException
- * purpose: dealing with computers, expressions should be concrete and brackets MUST be matched
- * 
- */
-@Test (expected = InvalidExpressionException.class)
-public void illegalBracketsA1(){
-	String expression = "((+ 3 3))))";
-	System.out.println("\nTesting evaluate() with: type=array, string= " + "'"+expression+"'");
-	stackA.startExpression(ARRAY, expression);
-}
-@Test (expected = InvalidExpressionException.class)
-public void illegalBracketsL1(){
-	String expression = "((+ 3 3))))";
-	System.out.println("\nTesting evaluate() with: type=LL, string= " + "'"+expression+"'");
-	stackL.startExpression(LL, expression);
-}
+	/*
+	 * test case 4: illegal size for operators - and / expected:
+	 * InvalidExpressionException purpose: these operators require at least one
+	 * operand. This tests that.
+	 * 
+	 */
+	@Test(expected = InvalidExpressionException.class)
+	public void illegalExpressionSubA()
+	{
+		String expression = "(-)";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evalute(String) with: type=array, string= " + "'" + expression + "'");
+		expEval.startExpression(stack);
+	}
 
-@Test (expected = InvalidExpressionException.class)
-public void illegalBracketsA2(){
-	String expression = "(+ 3(+ 3(+3))";
-	System.out.println("\nTesting evaluate() with: type=array, string= " + "'"+expression+"'");
-	stackA.startExpression(ARRAY, expression);
-}
-@Test (expected = InvalidExpressionException.class)
-public void illegalBracketsL2(){
-	String expression = "(+ 3(+ 3(+3))";
-	System.out.println("\nTesting evaluate() with: type=LL, string= " + "'"+expression+"'");
-	stackL.startExpression(LL, expression);
-}
+	@Test(expected = InvalidExpressionException.class)
+	public void illegalExpressionDivA()
+	{
+		String expression = "(/)";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evalute(String) with: type=array, string= " + "'" + expression + "'");
+		expEval.startExpression(stack);
+	}
 
-/*
- * tests to see what would happen with a normal everyday math expression where number comes first
- * expected: InvalidExpressionException
- * purpose: likely to happen, a person will input an expression with normal language, and lisp should not accept
- */
-@Test (expected = InvalidExpressionException.class)
-public void nonLispA(){
-	String expression = "(4 + 5)";
-	System.out.println("\nTesting evaluate() with: type=array, string= " + "'"+expression+"'");
-	assertEquals(9.0, stackA.startExpression(ARRAY,expression), 1e-16);
-}@Test (expected = InvalidExpressionException.class)
-public void nonLispL(){
-	String expression = "(4 + 5)";
-	System.out.println("\nTesting evaluate() with: type=LL, string= " + "'"+expression+"'");
-	stackL.startExpression(LL, expression);
-}
+	/*
+	 * test case 5: minimal operands for - and / expected: -5 and 0.2 purpose:
+	 * test the lower bound of what is required for these operators
+	 * 
+	 */
+	@Test
+	public void minimalExpressionSubA()
+	{
+		String expression = "(- 5)";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evalute(String) with: type=array, string= " + "'" + expression + "'");
+		assertEquals(-5.0, expEval.startExpression(stack), 1e-16);
+	}
 
-/*
- * test expressions that are too large for the bounded stack
- * expected: FullStackException (this will vary depending on capacity, may have
- * a stack large enough to hold this and it wont throw, as this is >100 elements but not infinite)
- * purpose: make sure we don't push more than the stack can hold, and with some machines/languages, keep security
- */
-@Test (expected = FullStackException.class)
-public void fullStackA(){
-String expression = "(+ 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ";
-	System.out.println("\nTesting evaluate() with: type=LL, string= " + "'"+expression+"'");
-	stackA.startExpression(ARRAY, expression);
-}
-@Test (expected = FullStackException.class)
-public void fullStackL(){
-String expression = "(+ 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ";
-	System.out.println("\nTesting evaluate() with: type=LL, string= " + "'"+expression+"'");
-	stackL.startExpression(LL, expression);
-}
+	@Test
+	public void minimalExpressionDivA()
+	{
+		String expression = "(/ 5)";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evalute(String) with: type=array, string= " + "'" + expression + "'");
+		assertEquals(0.2, expEval.startExpression(stack), 1e-16);
+	}
+
+	/*
+	 * test case 6: typical cases with nested expressions Expected:
+	 * 3.1415926534674368 and 16.5 respectively purpose: test codes ability to
+	 * evaluate robust expressions with many combinations
+	 * 
+	 */
+	@Test
+	public void typicalA1()
+	{
+		String expression = "(+ 3 (/ (+ 7 (/ (+ 9 6 (/ (+ 1 (/ (+ (* 4 (+ 1 (* 8 9))) (/ (+ 1 1)))))))))))";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evalute(String) with: type=array, string= " + "'" + expression + "'");
+		assertEquals(3.1415926534674368, expEval.startExpression(stack), 1e-16);
+	}
+
+	@Test
+	public void typicalA2()
+	{
+		String expression = "(+ (- 6) (* 2 3 4) (/ (+ 3) (*) (- 2 3 1 )))";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evalute(String) with: type=array, string= " + "'" + expression + "'");
+		assertEquals(16.5, expEval.startExpression(stack), 1e-16);
+	}
+
+	/*
+	 * test case 7: invalid consecutive operands Expected:
+	 * InvalidExpressionException purpose: ensure that an operator doesn't try
+	 * to operate on another operator
+	 */
+	@Test(expected = InvalidExpressionException.class)
+	public void invalidOperandsA()
+	{
+		String expression = "(+ - 3345)";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evaluate() with: type=array, string= " + "'" + expression + "'");
+		expEval.startExpression(stack);
+	}
+
+	/*
+	 * test case 8: arbitrary and negative integers Expected: -10000.0 and
+	 * -88888 respectively purpose: this functionality was added in. so best
+	 * make sure it works
+	 */
+	@Test
+	public void arbitraryIntsA1()
+	{
+		String expression = "(+ -5666 -4334)";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evaluate() with: type=array, string= " + "'" + expression + "'");
+		assertEquals(-10000.0, expEval.startExpression(stack), 1e-16);
+	}
+
+	@Test
+	public void arbitraryIntsA2()
+	{
+		String expression = "(- -99999 -11111)";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evaluate() with: type=array, string= " + "'" + expression + "'");
+		assertEquals(-88888.0, expEval.startExpression(stack), 1e-16);
+	}
+
+	/*
+	 * test case 9: if operands come after numbers expected:
+	 * InvalidExpressionException purpose: see what would happen if an operator
+	 * came after a number. similar to consecutive operands in that it doesn't
+	 * want to see operators try to operate on other operators
+	 */
+	@Test(expected = InvalidExpressionException.class)
+	public void illegalOrderA()
+	{
+		String expression = "(+ -5666 -4334+)";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evaluate() with: type=array, string= " + "'" + expression + "'");
+		expEval.startExpression(stack);
+	}
+
+	/*
+	 * test case 10: mismatched brackets expected: InvalidExpressionException
+	 * purpose: dealing with computers, expressions should be concrete and
+	 * brackets MUST be matched
+	 * 
+	 */
+	@Test(expected = InvalidExpressionException.class)
+	public void illegalBracketsA1()
+	{
+		String expression = "((+ 3 3))))";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evaluate() with: type=array, string= " + "'" + expression + "'");
+		expEval.startExpression(stack);
+	}
+
+	@Test(expected = InvalidExpressionException.class)
+	public void illegalBracketsA2()
+	{
+		String expression = "(+ 3(+ 3(+3))";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evaluate() with: type=array, string= " + "'" + expression + "'");
+		expEval.startExpression(stack);
+	}
+
+	/*
+	 * tests to see what would happen with a normal everyday math expression
+	 * where number comes first expected: InvalidExpressionException purpose:
+	 * likely to happen, a person will input an expression with normal language,
+	 * and lisp should not accept
+	 */
+	@Test(expected = InvalidExpressionException.class)
+	public void nonLispA()
+	{
+		String expression = "(4 + 5)";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evaluate() with: type=array, string= " + "'" + expression + "'");
+		assertEquals(9.0, expEval.startExpression(stack), 1e-16);
+	}
+
+	/*
+	 * test expressions that are too large for the bounded stack expected:
+	 * FullStackException (this will vary depending on capacity, may have a
+	 * stack large enough to hold this and it wont throw, as this is >100
+	 * elements but not infinite) purpose: make sure we don't push more than the
+	 * stack can hold, and with some machines/languages, keep security
+	 */
+	@Test(expected = FullStackException.class)
+	public void fullexpEval()
+	{
+		String expression = "(+ 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ";
+		populateStack(stack, expression);
+		System.out.println("\nTesting evaluate() with: type=LL, string= " + "'" + expression + "'");
+		expEval.startExpression(stack);
+	}
+
+	private void populateStack(BoundedStack<String> stack, String expression)
+	{
+		StackPopulator stackPopulator = new StackPopulator(stack);
+		stackPopulator.pushExpressionIntoStack(expression);
+	}
+
+	private BoundedStack<String> getStack(int type)
+	{
+		if (type == 0)
+		{
+			return new ArrayStack<String>(CAPACITY);
+		}
+		else
+		{
+			return new LinkedListStack<String>(CAPACITY);
+		}
+	}
 }

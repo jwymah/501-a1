@@ -16,6 +16,8 @@ import java.io.*;
  */
 public class Main
 {
+	private static int CAPACITY = 100;
+	
 	/**
 	 * Prints a message describing proper usage with respect to required command
 	 * line parameters and exits.
@@ -62,7 +64,10 @@ public class Main
 			{
 				try
 				{
-					result = lispExpression.startExpression(type, expression);
+					BoundedStack<String> stack = getStack(type);
+					populateStack(stack, expression);
+					
+					result = lispExpression.startExpression(stack);
 					System.out.println(result);
 				}
 				catch (Exception e)
@@ -87,6 +92,22 @@ public class Main
 			{
 				e.printStackTrace();
 			}
+		}
+	}
+
+	
+	private static void populateStack(BoundedStack<String> stack, String expression)
+	{
+		StackPopulator stackPopulator = new StackPopulator(stack);
+		stackPopulator.pushExpressionIntoStack(expression);
+	}
+
+	private static BoundedStack<String> getStack(int type)
+	{
+		if (type == 0) {
+			return new ArrayStack<String>(CAPACITY);
+		} else {
+			return new LinkedListStack<String>(CAPACITY);
 		}
 	}
 }

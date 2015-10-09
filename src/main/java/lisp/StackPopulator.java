@@ -1,5 +1,7 @@
 package lisp;
 
+import java.util.EmptyStackException;
+
 public class StackPopulator
 {
 	private StringBuffer buf = new StringBuffer();
@@ -11,18 +13,23 @@ public class StackPopulator
 		this.stack = stack;
 	}
 
-	public void pushExpressionIntoStack(String expression) throws InvalidExpressionException
+	public void pushExpressionIntoStack(String expression) throws InvalidExpressionException, EmptyStackException
 	{
-
+		if (expression.length() == 0)
+		{
+			throw new EmptyStackException();
+		}
+		
 		for (int i = expression.length() - 1; i >= 0; i--)
 		{
 			parseChar(expression.charAt(i));
 			if (Mode.debugStack == true)
 				System.out.println("parsed character: " + expression.charAt(i));
 		}
-		if (buf.length() > 0 )
+		if (buf.length() > 0)
 		{
-			stack.push(buf.toString());	// to make sure the very first character is always pushed
+			stack.push(buf.toString()); // to make sure the very first character
+										// is always pushed
 			buf.delete(0, buf.length());
 		}
 	}
@@ -95,5 +102,4 @@ public class StackPopulator
 		}
 		return;
 	}
-
 }

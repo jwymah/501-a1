@@ -10,7 +10,6 @@ package lisp;
  * tut: M/W 11am
  */
 public class ExpressionEvaluator {
-	private final int CAPACITY = 100;
 	private BoundedStack<String> stack;
 	private int depth = 0;
 	
@@ -24,18 +23,8 @@ public class ExpressionEvaluator {
 	 *            the lisp expression
 	 * @return value of expression of type double
 	 */
-	public double startExpression(int type, String expression) {
-
-		if (expression.length() == 0) {
-			throw new InvalidExpressionException("Empty expression.");
-		}
-		if (type == 0) {
-			stack = new ArrayStack<String>(CAPACITY);
-		} else {
-			stack = new LinkedListStack<String>(CAPACITY);
-		}
-		StackPopulator stackPopulator = new StackPopulator(stack);
-		stackPopulator.pushExpressionIntoStack(expression);
+	public double startExpression(BoundedStack<String> stack) {
+		this.stack = stack;
 		return evaluateExpressionOnStack();
 	}
 
@@ -103,13 +92,13 @@ public class ExpressionEvaluator {
 			evaluateSubExpression();
 
 		else if (str.contentEquals("+")) {
-			value = doOperands('+');
+			value = doOperatorOnOperands('+');
 		} else if (str.contentEquals("*")) {
-			value = doOperands('*');
+			value = doOperatorOnOperands('*');
 		} else if (str.contentEquals("-")) {
-			value = doOperands('-');
+			value = doOperatorOnOperands('-');
 		} else if (str.contentEquals("/")) {
-			value = doOperands('/');
+			value = doOperatorOnOperands('/');
 		} else if (str.contentEquals(")")) {
 			return 0.0;
 		} else {
@@ -132,7 +121,7 @@ public class ExpressionEvaluator {
 	 *             stack or if after being called another operator is on top of
 	 *             the stack
 	 */
-	private double doOperands(char operator) {
+	private double doOperatorOnOperands(char operator) {
 		int terms = 0;
 		double value = 0.0;
 		while (!stack.isEmpty()) {
