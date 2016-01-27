@@ -1,0 +1,693 @@
+package lisp;
+
+import java.util.EmptyStackException;
+
+public class ArrayStack<T> extends BoundedStack<T>{
+	private T[] stack;
+	private int top = -1;
+	
+	@SuppressWarnings("unchecked")
+	public	ArrayStack (int newCapacity){
+		super(newCapacity);
+		stack = (T[]) new String[newCapacity];
+	}
+
+	@Override
+	public T top() throws EmptyStackException{
+		if (isEmpty()){
+			throw new EmptyStackException ();
+		}
+		T temp = stack[top];
+		return temp;
+	}
+
+	@Override
+	public T pop() throws EmptyStackException {
+		if (isEmpty())
+			throw new EmptyStackException ();
+		T temp = stack[top];
+		top--;
+		size--;
+		
+		if	(Mode.debugStack==true)
+			System.out.println("popped " + temp);
+		return temp;
+	}
+	@Override
+	public void push(T x) throws FullStackException{
+		if (isFull())
+			throw new FullStackException("Stack is full. Cannot push anymore");
+		top++;
+		stack[top] = x;
+		size++;
+		
+		if	(Mode.debugStack==true)
+			System.out.println("pushed " + x);
+		return;
+	}
+}
+package lisp;
+
+/**
+ * Interface for question two.
+ * 
+ * @author Jeremy mah
+ * @param <T>
+ *
+ */
+public abstract class BoundedStack<T>
+{
+	protected int size;
+	private int capacity;
+
+	public BoundedStack(int capacity)
+	{
+		size = 0;
+		this.capacity = capacity;
+	}
+	
+	/**
+	 * @returns the size of the stack. ie. set elements in the array.
+	 */
+	public int size() {
+		return size;
+	}
+	/**
+	 * @returns the maximum size of the stack. ie. size of the array.
+	 */
+	public int capacity() {
+		return capacity;
+	}
+	/**
+	 * checks to see whether the size==capacity.
+	 * 
+	 * @returns true if size==capacity, false otherwise.
+	 */
+	public boolean isFull() {
+		if (size == capacity)
+			return true;
+		return false;
+	}
+
+	/**
+	 * Tests whether the stack is empty.
+	 *
+	 * @return true if the stack is empty, false otherwise
+	 */
+	public boolean isEmpty() {
+		if (size == 0)
+			return true;
+		return false;
+	}
+	/**
+	 * Pushes the object x onto the top of the stack.
+	 *
+	 * @param x
+	 *            object to be pushed onto the stack.
+	 * @throws FullStackException
+	 *             if the stack is full.
+	 */
+	public abstract void push(T x);
+
+	/**
+	 * Returns the object at the top of the stack.
+	 *
+	 * @return reference to the item at the top of the stack
+	 * @throws EmptyStackException
+	 *             if the stack is empty
+	 */
+	public abstract T top();
+
+	/**
+	 * Removes and returns the object at the top of the stack.
+	 *
+	 * @return reference to the item at the top of the stack
+	 * @throws EmptyStackException
+	 *             if the stack is empty
+	 */
+	public abstract T pop();
+}
+package lisp;
+
+/*
+ * Student: Jeremy Mah
+ * ID: 10053908
+ * Class: 331
+ * assignment 2
+ * Instructor: Mike Jacobson
+ * TA: Eduard Pelchat
+ * tut: M/W 11am
+ */
+public class ExpressionEvaluator {
+	private BoundedStack<String> stack;
+	private int depth = 0;
+	
+	/**
+	 * method made solely for the purpose of having a return method that can be
+	 * used to test
+	 * 
+	 * @param type
+	 *            integer 0 or 1 for the implementation of the stack
+	 * @param expression
+	 *            the lisp expression
+	 * @return value of expression of type double
+	 */
+	public double startExpression(BoundedStack<String> stack) {
+		this.stack = stack;
+		return evaluateExpressionOnStack();
+	}
+
+	private double evaluateExpressionOnStack()
+	{
+		if (stack.pop().contentEquals("(")) {
+			depth = 0;
+			return evaluateSubExpression();
+		}
+		else
+		{
+			throw new InvalidExpressionException("Does not start with '('.");
+		}
+	}
+
+	/**
+	 * recursive evaluation method; called whenever opening bracket is popped
+	 * must be called after encountering an opening bracket and will evaluate
+	 * the contents until the corresponding closing bracket given a valid
+	 * equation Will call itself again when encountering another opening bracket
+	 * before a closing bracket.
+	 * 
+	 * @return returns a boolean value whether the expression is a valid Lisp
+	 *         expression.
+	 * @throws InvalidExpressionException
+	 *             if some expression is not entirely bound by a single pair of
+	 *             brackets. ie. '(+ 1 2)5'. will always throw an exception if a
+	 *             close bracket is not on stack when returning to this method
+	 */
+	private double evaluateSubExpression() {
+		depth += 1;
+		String str = null;
+		double value = 0.0;
+		while (stack.size() > 1 && stack.top().contentEquals(")") == false) {
+			str = stack.pop();
+			if (str.contentEquals("(")) {
+				value = evaluateSubExpression();
+			} else if (stack.size() > 0 && str.contentEquals(")") == false)
+				value = doOperator(str);
+		}
+		if (stack.isEmpty() == true)
+			throw new InvalidExpressionException("Expression is not properly bound by parenthesis.");
+		stack.pop();
+		if (Mode.debugEval)
+			System.out.println("stack size= " + stack.size());
+		if (depth == 1 && stack.isEmpty() == false)
+			throw new InvalidExpressionException("Final character in expression is not ')'.");
+		depth -= 1;
+		return value;
+	}
+
+	/**
+	 * Analyzes the operation to be performed and calls doOperands
+	 * 
+	 * @param one
+	 *            character long string containing the operator to perform
+	 * @return the value calculated from the operand until closing bracket is on
+	 *         top of stack
+	 **/
+	private double doOperator(String str) {
+		double value = 0.0;
+		if (Mode.debugEval)
+			System.out.println("String passed to doOperator is: " + str);
+		if (str.contentEquals("("))
+			evaluateSubExpression();
+
+		else if (str.contentEquals("+")) {
+			value = doOperatorOnOperands('+');
+		} else if (str.contentEquals("*")) {
+			value = doOperatorOnOperands('*');
+		} else if (str.contentEquals("-")) {
+			value = doOperatorOnOperands('-');
+		} else if (str.contentEquals("/")) {
+			value = doOperatorOnOperands('/');
+		} else if (str.contentEquals(")")) {
+			return 0.0;
+		} else {
+			throw new InvalidExpressionException("Unknown operator found '" + str + "'.");
+		}
+		return value;
+	}
+
+	/**
+	 * given an operator, performs the operand with values pulled off the stack
+	 * until closing bracket is on top. Also keeps track of how many terms have
+	 * gone by to properly evaluate lisp expressions.
+	 * 
+	 * @param char
+	 *            operator expected to be one of + - * /
+	 * @return (double) the value of the evaluated segment until a closing
+	 *         bracket is on top of the stack
+	 * @throws InvalidExpressionException
+	 *             if operator is - or / and closing bracket is on top of the
+	 *             stack or if after being called another operator is on top of
+	 *             the stack
+	 */
+	private double doOperatorOnOperands(char operator) {
+		int terms = 0;
+		double value = 0.0;
+		while (!stack.isEmpty()) {
+			terms++;
+
+			if (stack.top().contentEquals(")")) {
+				if (terms == 1 && operator == '*')
+					value = 1.0;
+				else if (terms == 1 && (operator == '/' || operator == '-')) {
+					throw new InvalidExpressionException(
+							"Expression starts with an unsupported starting operator '" + operator + "'.");
+				}
+				return value;
+			}
+
+			String nextChar = stack.pop();
+
+			if (nextChar.contentEquals("("))
+				nextChar = Double.toString(evaluateSubExpression());
+			else if (nextChar.contentEquals("+") || nextChar.contentEquals("*") || nextChar.contentEquals("-")
+					|| nextChar.contentEquals("/")) {
+				throw new InvalidExpressionException("Expression contains operators before parenthesis.");
+			}
+
+			value = doOperator(operator, terms, value, nextChar);
+		}
+		return 0.0;
+	}
+
+	private double doOperator(char operator, int terms, double value, String str)
+	{
+		switch (operator) {
+		case '+':
+			if (terms == 1)
+				value = 0.0;
+			value += Double.parseDouble(str);
+			break;
+		case '*':
+			if (terms == 1)
+				value = 1.0;
+			value *= Double.parseDouble(str);
+			break;
+		case '-':
+			if (terms == 1) {
+				if (stack.top().contentEquals(")"))
+					value = -Double.parseDouble(str);
+				else
+					value = Double.parseDouble(str);
+			} else {
+				value -= Double.parseDouble(str);
+			}
+			break;
+		case '/':
+			if (terms == 1) {
+				if (stack.top().contentEquals(")"))
+					value = 1 / Double.parseDouble(str);
+				else
+					value = Double.parseDouble(str);
+			} else {
+				value /= Double.parseDouble(str);
+			}
+			break;
+		}
+		return value;
+	}
+
+	/*
+	 * for whatever reason sometimes it is desired to empty the stack and start
+	 * over this method does just that
+	 */
+	public void cleanStack() {
+		while (stack.size() > 0) {
+			stack.pop();
+		}
+	}
+}package lisp;
+
+public class FullStackException extends RuntimeException{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	  /**
+	  * Constructs a FullStackException with the
+	  * specified message.
+	  *
+	  * @param message The message
+	  */
+	  FullStackException(String message) {
+	    super(message);
+	  }
+	  
+}
+package lisp;
+/*
+ * /*
+ * Student: Jeremy Mah
+ * ID: 10053908
+ * Class: 331
+ * assignment 2
+ * Instructor: Mike Jacobson
+ * TA: Eduard Pelchat
+ * tut: M/W 11am
+ */
+
+
+/*new exception class for assignment2
+ */
+public class InvalidExpressionException extends RuntimeException{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	  /**
+	  *
+	  * @param message The message
+	  */
+	  InvalidExpressionException(String Message) {
+	    super(Message);
+	  }
+	  
+}
+package lisp;
+import java.util.EmptyStackException;
+/*
+ * Student: Jeremy Mah
+ * ID: 10053908
+ * Class: 331
+ * assignment 2
+ * Instructor: Mike Jacobson
+ * TA: Eduard Pelchat
+ * tut: M/W 11am
+ */
+public class LinkedListStack<T> extends BoundedStack<T>{
+	private ListNode head;
+
+	public LinkedListStack (int newCapacity){
+		super(newCapacity);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public T top() throws EmptyStackException{
+		if (isEmpty())
+				throw new EmptyStackException();
+		String temp = head.getData();
+		return (T) temp;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public T pop() throws EmptyStackException{
+		if (size <= 0)
+				throw new EmptyStackException();
+		
+		String temp = head.getData();
+		if	(size == 1)
+			head = null;
+		else
+			head = head.getNext();
+		
+		size--;
+		if	(Mode.debugStack == true)
+			System.out.println("popped: "+temp);
+		return (T) temp;
+	}
+	
+	@Override
+	public void push(T x) throws FullStackException{
+		if (isFull())
+			throw new FullStackException("Stack is full. Cannot push anymore");
+		ListNode temp = new ListNode((String) x);
+		temp.setNext(head);
+		size++;
+		if	(Mode.debugStack == true)
+			System.out.println("pushed: "+x);
+		head = temp;
+	}
+
+}
+package lisp;
+
+public class ListNode {
+	private String data;
+	private ListNode nextNode;
+	
+	public ListNode (String c){
+		data = c;
+		nextNode = null;
+	}
+
+	public String getData(){
+		return data;
+	}
+	
+	public void setNext(ListNode T){
+		nextNode = T;
+	}
+	
+	public ListNode getNext(){
+		return nextNode;
+	}
+}
+package lisp;
+
+import java.io.*;
+/*
+ * Student: Jeremy Mah
+ * ID: 10053908
+ * Class: 331
+ * assignment 2
+ * Instructor: Mike Jacobson
+ * TA: Eduard Pelchat
+ * tut: M/W 11am
+ */
+
+/*
+ * driver class for assignement 2. takes the command line args only. returns none
+ */
+public class Main
+{
+	private static int CAPACITY = 100;
+	
+	/**
+	 * Prints a message describing proper usage with respect to required command
+	 * line parameters and exits.
+	 */
+	private static void usage()
+	{
+		System.out.println("invalid inputs. Usage: A2Q5 <type> <filename>");
+		System.out.println("where <type> is 0 or 1 and <filename> contains text inputs");
+		System.exit(1);
+	}
+
+	/*
+	 * Student: Jeremy Mah ID: 10053908 Class: 331 assignment 2 Instructor: Mike
+	 * Jacobson TA: Eduard Pelchat tut: M/W 11am
+	 */
+	/**
+	 * examines arguments, reads from file line-by-line and creates a new
+	 * instance of A2Q5b to evaluate each line. handles it's own file errors and
+	 * exceptions thrown by other classes
+	 * 
+	 * @param args
+	 */
+	public static void main(String args[])
+	{
+		ExpressionEvaluator lispExpression = null;
+		double result = 0.0;
+		if (args.length != 2)
+		{
+			usage();
+			System.exit(1);
+		}
+
+		int type = Integer.parseInt(args[0]);
+		String fileName = args[1];
+		BufferedReader br = null;
+		lispExpression = new ExpressionEvaluator();
+
+		try
+		{
+			FileReader fr = new FileReader(fileName);
+			br = new BufferedReader(fr);
+			String expression = br.readLine();
+			while (expression != null)
+			{
+				try
+				{
+					BoundedStack<String> stack = getStack(type);
+					populateStack(stack, expression);
+					
+					result = lispExpression.startExpression(stack);
+					System.out.println(result);
+				}
+				catch (Exception e)
+				{
+					System.out.println(e.getMessage());
+				}
+				lispExpression.cleanStack();
+				expression = br.readLine();
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println("Invalid Expression");
+		}
+		finally
+		{
+			try
+			{
+				br.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+	
+	private static void populateStack(BoundedStack<String> stack, String expression)
+	{
+		StackPopulator stackPopulator = new StackPopulator(stack);
+		stackPopulator.pushExpressionIntoStack(expression);
+	}
+
+	private static BoundedStack<String> getStack(int type)
+	{
+		if (type == 0) {
+			return new ArrayStack<String>(CAPACITY);
+		} else {
+			return new LinkedListStack<String>(CAPACITY);
+		}
+	}
+}
+package lisp;
+/*
+ * Student: Jeremy Mah
+ * ID: 10053908
+ * Class: 331
+ * assignment 2
+ * Instructor: Mike Jacobson
+ * TA: Eduard Pelchat
+ * tut: M/W 11am
+ */
+
+
+//simple debugging class for assignment2. if tags = true, debugging messages are printed during execution
+public class Mode {
+	public static boolean debugStack = false;
+	public static boolean debugEval = false;
+}
+package lisp;
+
+import java.util.EmptyStackException;
+
+public class StackPopulator
+{
+	private StringBuffer buf = new StringBuffer();
+	private boolean appendState = false;
+	private BoundedStack<String> stack;
+
+	StackPopulator(BoundedStack<String> stack)
+	{
+		this.stack = stack;
+	}
+
+	public void pushExpressionIntoStack(String expression) throws InvalidExpressionException, EmptyStackException
+	{
+		if (expression.length() == 0)
+		{
+			throw new EmptyStackException();
+		}
+		
+		for (int i = expression.length() - 1; i >= 0; i--)
+		{
+			parseChar(expression.charAt(i));
+			if (Mode.debugStack == true)
+				System.out.println("parsed character: " + expression.charAt(i));
+		}
+		if (buf.length() > 0)
+		{
+			stack.push(buf.toString()); // to make sure the very first character
+										// is always pushed
+			buf.delete(0, buf.length());
+		}
+	}
+
+	/**
+	 * This method scans the string start to finish one character at a time. if
+	 * there is two number characters or negative sign next to a number
+	 * character they are joined into a single string values are pushed onto a
+	 * stack which is implemented by an array of strings
+	 * 
+	 * @param a
+	 *            single character from the list expression
+	 * @throws InvalidExpressionException
+	 *             if unexpected characters found (ie alphabet)
+	 */
+	private void parseChar(char c) throws InvalidExpressionException
+	{
+		if (Mode.debugStack == true)
+			System.out.println("parsing: " + c);
+		switch (c)
+		{
+			case '(':
+			case ')':
+				if (buf.length() > 0)
+				{
+					buf.reverse();
+					stack.push(buf.toString());
+					buf.delete(0, buf.length());
+				}
+				stack.push(Character.toString(c));
+				appendState = false;
+				break;
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				buf.append(c);
+				appendState = true;
+				break;
+			case '-':
+				if (appendState == true)
+					buf.append(c);
+				else
+					stack.push(Character.toString(c));
+
+				break;
+			case '+':
+			case '*':
+			case '/':
+				stack.push(Character.toString(c));
+				appendState = false;
+				break;
+			case ' ':
+				if (buf.length() > 0)
+				{
+					buf.reverse();
+					stack.push(buf.toString());
+					buf.delete(0, buf.length());
+				}
+				appendState = false;
+				break;
+			default:
+				throw new InvalidExpressionException("Unknown character '" + c + "'.");
+		}
+		return;
+	}
+}

@@ -1,0 +1,92 @@
+commit 7c462bd41eaac782b604184ca6c15c4e396a6d73
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Fri Oct 9 03:31:25 2015 -0600
+
+    moved around some logic out of expressionEvaluator
+
+commit 23661ac6f480e636ab8b4d9511fb589a552e7c5f
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Fri Oct 9 00:27:43 2015 -0600
+
+    added Tests for StackPopulator.java, found and fixed 1 bug
+
+commit 97f32a7585428e1e419efb8ae864706bd7cf6bac
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Tue Oct 6 17:45:03 2015 -0600
+
+    renaming and small optimization
+
+commit 014dda18b7e2a9c0be990f644f235be2891f3053
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Tue Oct 6 15:09:38 2015 -0600
+
+    Pull up: moved common overridden methods from arrayStack and linkedListStack both into superclass and changed superclass interface to abstract.
+
+commit d8e1cc1b207d7aef28066492a59351b52d768568
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Mon Sep 28 12:29:51 2015 -0600
+
+    closing resource leak
+
+commit c5f8b45a0a2c7921cf271b5eeb385afa004e7b22
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Sun Sep 27 00:10:05 2015 -0600
+
+    Extract class: moved logic to populate stack into its own class
+
+commit dee2398cc434e3ae3587e9d80499d41c19583b44
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Sat Sep 26 23:47:18 2015 -0600
+
+    Long Method: splitting up long method 'startExpression'
+
+commit a32db5a7d4db36b537fa5fef648ef379160d9596
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Fri Sep 25 13:38:42 2015 -0600
+
+    folder restructuring... trying to use gradle again
+
+commit d4584f8961d492e682319214e729d9e82d02a0ee
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Thu Sep 24 22:53:12 2015 -0600
+
+    collapse hierarchy of cpsc331stack interface into BoundedStack interface - hierarchy was already linear
+
+commit a4d3e9a5a6b83d1057398fa392405dfe91811ab0
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Thu Sep 24 21:52:11 2015 -0600
+
+    changed invalid expression exception messages
+    clarified older unit tests are just black-box tests (not necessarily unit tests)
+
+commit f06c10ed24ecef1414e0455eb4ec074f6761c0bf
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Thu Sep 24 21:31:50 2015 -0600
+
+    moved around and renamed src files
+
+commit c8a299291ca4079d424023e593c8a17e1da0c4fa
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Thu Sep 24 20:47:36 2015 -0600
+
+    fixied project setup
+
+commit 5be01bd69a1b90e7915f2e778d2fc88a97366b5c
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Thu Sep 24 20:21:26 2015 -0600
+
+    Revert "adding gradle"
+    
+    This reverts commit 24fcda421281b30642e60fac6e35b3574d6fc779.
+
+commit 24fcda421281b30642e60fac6e35b3574d6fc779
+Author: jeremy mah <jeremyw.mah@gmail.com>
+Date:   Thu Sep 24 19:55:01 2015 -0600
+
+    adding gradle
+
+commit 6ec2811ebebaffb2449050c3bb94ce82ac3df3ad
+Author: jmah mba <jeremyw.mah@gmail.com>
+Date:   Thu Sep 24 17:36:22 2015 -0600
+
+    initial commit with unaltered files
